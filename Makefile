@@ -8,14 +8,14 @@ UNAME := $(shell uname)
 
 # Flags for OSX
 ifeq ($(UNAME), Darwin)
-LIBS = `fltk-config --libs --use-images` -framework Cocoa -lpng -ljpeg
-CFLAGS =  -L$(PNGLIB_PATH) -g `fltk-config --cxxflags`
-
 # Set this variable to the directory where libpng is installed. The
 # one bellow is where MacPorts usually puts things, if you used some other
 # package manager (e.g. brew) or installed libpng from source you will
 # have to modify it.
 PNGLIB_PATH=/opt/local/lib 
+LIBS =  -L$(PNGLIB_PATH) `fltk-config --libs --use-images` -framework Cocoa -lpng -ljpeg -lz
+CFLAGS = -g `fltk-config --cxxflags`
+
 else
 # Flags for Linux / Cygwin
 LIBS = -L$(HOME)/local/lib `fltk-config --libs --use-images` -lpng -ljpeg -lfltk -L/usr/X11R6/lib -lXext -lXft -lXinerama -lfontconfig -lX11 -ldl
