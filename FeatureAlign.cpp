@@ -100,33 +100,30 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
     int maxInliers = -1;
     
     for (int i = 0; i < nRANSAC; i++) {
-        int n = rand() % matches.size();
-        FeatureMatch randomMatch = matches.at(n);
-        int firstId = randomMatch.id1;
-        int secondId = randomMatch.id2;
-        Feature first, second;
-        for (int i = 0; i < f1.size(); i++) {
-            if (f1.at(i).id == firstId) {
-                first = f1.at(i);
+        switch (m) {
+            case eTranslate: {
+                int n = rand() % matches.size();
+                FeatureMatch randomMatch = matches.at(n);
+                Feature first = f1[randomMatch.id1 - 1];
+                Feature second = f2[randomMatch.id2 - 1];
+                
+                float xTranslation = (float)(second.x - first.x);
+                int yTranslation = (float)(second.y - first.y);
+                CTransform3x3 estimateTranslation = CTransform3x3::Translation(xTranslation, yTranslation);
+                
+                vector<int> inliers;
+                countInliers(f1,f2,matches,m,estimateTranslation,RANSACthresh,inliers);
+                
+                if (inliers.size() > maxInliers) {
+                    maxInliers = inliers.size();
+                    M = estimateTranslation;
+                }
+                break;
             }
-        }
-        for (int i = 0; i < f2.size(); i++) {
-            if (f2.at(i).id == secondId) {
-                second = f2.at(i);
-            }
+            case eHomography:
+                break;
         }
         
-        float xTranslation = (float)(second.x - first.x);
-        int yTranslation = (float)(second.y - first.y);
-        CTransform3x3 estimateTranslation = CTransform3x3::Translation(xTranslation, yTranslation);
-        
-        vector<int> inliers;
-        countInliers(f1,f2,matches,m,estimateTranslation,RANSACthresh,inliers);
-        
-        if (inliers.size() > maxInliers) {
-            maxInliers = inliers.size();
-            M = estimateTranslation;
-        }
     }
     
     // END TODO
