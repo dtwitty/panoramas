@@ -195,7 +195,7 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
             // BEGIN TODO
 		    // Compute a homography M using all inliers.
 		    // This should call ComputeHomography.
-              M = ComputeHomography(f1, f2, matches);
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
             // END TODO
 
