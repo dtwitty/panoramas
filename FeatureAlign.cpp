@@ -107,9 +107,9 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
- *		m: motion model
  *               Each match in 'matches' contains two feature ids of 
  *               matching features, id1 (in f1) and id2 (in f2).
+ *		m: motion model
  *		M: transformation matrix
  *		RANSACthresh: RANSAC distance threshold
  *		inliers: inlier feature IDs
@@ -124,14 +124,14 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *
  */
 int countInliers(const FeatureSet &f1, const FeatureSet &f2,
-                 const vector<FeatureMatch> &matches, MotionModel m, 
+                 const vector<FeatureMatch> &matches, MotionModel m,
                  CTransform3x3 M, double RANSACthresh, vector<int> &inliers)
 {
     inliers.clear();
 
     for (unsigned int i = 0; i < matches.size(); i++) {
         // BEGIN TODO
-        // determine if the ith matched feature f1[id1-1], when transformed by M,
+        // determine if the ith matched feature f1[id1], when transformed by M,
         // is within RANSACthresh of its match in f2
         //
         // if so, append i to inliers

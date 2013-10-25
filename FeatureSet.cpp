@@ -156,7 +156,7 @@ bool FeatureSet::load_sift(const char *name) {
 
 	// Read each of the features.
 	iterator i = begin();
-	int id = 1;
+	int id = 0;
 
 	while (i != end()) {
 		(*i).read_sift(f);
