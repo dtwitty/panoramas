@@ -97,6 +97,35 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // leastSquaresFit.
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
+    int maxInliers = -1;
+
+    for (int i = 0; i < nRANSAC; i++) {
+        switch (m) {
+            case eTranslate: {
+                int n = rand() % matches.size();
+                FeatureMatch randomMatch = matches.at(n);
+                Feature first = f1[randomMatch.id1 - 1];
+                Feature second = f2[randomMatch.id2 - 1];
+
+                float xTranslation = (float)(second.x - first.x);
+                int yTranslation = (float)(second.y - first.y);
+                CTransform3x3 estimateTranslation = CTransform3x3::Translation(xTranslation, yTranslation);
+
+                vector<int> inliers;
+                countInliers(f1,f2,matches,m,estimateTranslation,RANSACthresh,inliers);
+
+                if (inliers.size() > maxInliers) {
+                    maxInliers = inliers.size();
+                    M = estimateTranslation;
+                }
+                break;
+            }
+            case eHomography:
+                break;
+        }
+
+    }
+
     // END TODO
 
     return 0;
@@ -136,6 +165,24 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
         //
         // if so, append i to inliers
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
+
+        FeatureMatch match = matches.at(i);
+        Feature first = f1[match.id1 - 1];
+        Feature second = f2[match.id2 - 1];
+
+        CVector3 *firstVec = new CVector3(first.x, first.y, 1);
+        CVector3 translatedVec = M * (*firstVec);
+
+        double translatedX = (*firstVec)[0];
+        double translatedY = (*firstVec)[1];
+
+        double differenceX = second.x - translatedX;
+        double differenceY = second.y - translatedY;
+        double distance = sqrt(differenceX + differenceY);
+
+        if (distance < RANSACthresh) {
+            inliers.push_back(i);
+        }
 
         // END TODO
     }
