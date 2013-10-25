@@ -173,11 +173,11 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
         Feature first = f1[match.id1 - 1];
         Feature second = f2[match.id2 - 1];
         
-        CVector3 firstVec = new CVector3(first.x, first.y, 1);
-        CVector3 translatedVec = M * firstVec;
+        CVector3 *firstVec = new CVector3(first.x, first.y, 1);
+        CVector3 translatedVec = M * (*firstVec);
         
-        double translatedX = firstVec[0];
-        double translatedY = firstVec[1];
+        double translatedX = (*firstVec)[0];
+        double translatedY = (*firstVec)[1];
         
         double differenceX = second.x - translatedX;
         double differenceY = second.y - translatedY;
