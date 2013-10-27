@@ -223,8 +223,10 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
 			    // BEGIN TODO
 			    // use this loop to compute the average translation vector
 			    // over all inliers
-              u += f1[matches.at(inliers.at(i)).id2 - 1] - f1[matches.at(inliers.at(i)).id1 - 1];
-              v += f2[matches.at(inliers.at(i)).id2 - 1] - f2[matches.at(inliers.at(i)).id1 - 1];
+              int m1 = matches.at(inliers.at(i)).id1;
+              int m2 = matches.at(inliers.at(i)).id2;
+              u += f1[m1].x - f2[m2].x;
+              v += f1[m1].y - f2[m2].y;
                 // END TODO
             }
 
@@ -246,6 +248,11 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
 
             // END TODO
 
+            break;
+        }
+
+        case eRotate3D: {
+            cout << "3D Rotation is not supported by this project";
             break;
         }
     }
