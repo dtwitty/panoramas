@@ -168,9 +168,10 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
                 for (int c = 0; c < 4; c++)
                 {
                   int idx = indices[c];
-                  FeatureMatch selectedMatches[c] = new FeatureMatch();
-                  selectedMatches[c].id1 = matches.at(idx).id1;
-                  selectedMatches[c].id2 = matches.at(idx).id2;
+                  FeatureMatch fm;
+                  fm.id1 = matches.at(idx).id1;
+                  fm.id2 = matches.at(idx).id2;
+                  selectedMatches.push_back(fm);
                 }
                 trans = ComputeHomography(f1, f2, selectedMatches);
                 break;

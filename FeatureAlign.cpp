@@ -312,14 +312,20 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
         }
 
         case eHomography: {
-			M = CTransform3x3();
+			    M = CTransform3x3();
 
             // BEGIN TODO
 		    // Compute a homography M using all inliers.
 		    // This should call ComputeHomography.
-              M = ComputeHomography(f1, f2, matches);
+          vector<FeatureMatch> inmatches;
+          for (int bo = 0; bo < inliers.size(); bo++)
+          {
+            FeatureMatch mat;
+            mat = matches.at(inliers.at(bo));
+            inmatches.push_back(mat);
+          }
+          M = ComputeHomography(f1, f2, inmatches);
 
-            // END TODO
 
             break;
         }
