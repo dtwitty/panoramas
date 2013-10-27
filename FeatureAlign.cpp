@@ -37,7 +37,7 @@ CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
         // BEGIN TODO
         // fill in the matrix A in this loop.
         // To access an element of A, use parentheses, e.g. A(0,0)
-        
+
         A(2*i,0) = -(a.x);
         A(2*i,1) = -(a.y);
         A(2*i,2) = -1;
@@ -47,7 +47,7 @@ CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
         A(2*i,6) = b.x * a.x;
         A(2*i,7) = b.x * a.y;
         A(2*i,8) = b.x;
-        
+
         A(2*i + 1,0) = 0;
         A(2*i + 1,1) = 0;
         A(2*i + 1,2) = 0;
@@ -70,15 +70,22 @@ CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
     // BEGIN TODO
     // fill the homography H with the appropriate elements of the SVD
     // To extract, for instance, the V matrix, use svd.matrixV()
-    
-    int minIndex = sv[0];
-    for(int i = 1; i< sv.size(); i++) {
-        if (sv[i] < minIndex)
-            minIndex = sv[i];
-    }
-    Vt.transpose();
-    VectorXd eigenVector = Vt.col(minIndex);
 
+    int min = sv[0];
+    int minIndex = -1;
+    for(int i = 1; i< sv.size(); i++) {
+        if (sv[i] < min) {
+            min = sv[i];
+            minIndex = i;
+        }
+    }
+    Vt = Vt.transpose();
+    VectorXd eigenVector = Vt.col(minIndex);
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        H[i][j] = eigenVector[i * 3 + j];
+      }
+    }
     // END TODO
 
     return H;
@@ -126,33 +133,57 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // Your homography handling code should call ComputeHomography.
     // This function should also call countInliers and, at the end,
     // leastSquaresFit.
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
     int maxInliers = -1;
-
+    int sz = matches.size();
     for (int i = 0; i < nRANSAC; i++) {
+        int n = rand() % sz;
+        FeatureMatch randomMatch = matches.at(n);
+        CTransform3x3 trans;
         switch (m) {
             case eTranslate: {
-                int n = rand() % matches.size();
-                FeatureMatch randomMatch = matches.at(n);
                 Feature first = f1[randomMatch.id1];
                 Feature second = f2[randomMatch.id2];
-
                 float xTranslation = (float)(second.x - first.x);
                 int yTranslation = (float)(second.y - first.y);
-                CTransform3x3 estimateTranslation = CTransform3x3::Translation(xTranslation, yTranslation);
-
-                vector<int> inliers;
-                countInliers(f1,f2,matches,m,estimateTranslation,RANSACthresh,inliers);
-
-                if (inliers.size() > maxInliers) {
-                    maxInliers = inliers.size();
-                    M = estimateTranslation;
-                }
+                trans = CTransform3x3::Translation(xTranslation, yTranslation);
                 break;
             }
-            case eHomography:
+            case eHomography: {
+                int indices[] = {0, 0, 0, 0};
+                for (int chooseRand = 0; chooseRand < 4; chooseRand++)
+                {
+                  indices[chooseRand] = rand() % sz;
+                  for (int p = 0; p < chooseRand; p++)
+                  {
+                    if (indices[p] = indices[chooseRand]);
+                    {
+                      indices[chooseRand] = rand() % sz;
+                      p--;
+                    }
+                  }
+                }
+                vector<FeatureMatch> selectedMatches;
+                selectedMatches.resize(4);
+                for (int c = 0; c < 4; c++)
+                {
+                  int idx = indices[c];
+                  FeatureMatch fm;
+                  fm.id1 = matches.at(idx).id1;
+                  fm.id2 = matches.at(idx).id2;
+                  selectedMatches.push_back(fm);
+                }
+                trans = ComputeHomography(f1, f2, selectedMatches);
                 break;
+            }
+            vector<int> inliers;
+            countInliers(f1,f2,matches,m,trans,RANSACthresh,inliers);
+
+            if (inliers.size() > maxInliers) {
+                maxInliers = inliers.size();
+                M = trans;
+            }
+
         }
 
     }

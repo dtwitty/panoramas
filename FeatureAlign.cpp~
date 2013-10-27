@@ -19,8 +19,7 @@
 #include <iostream>
 
 CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
-                                const vector<FeatureMatch> &matches)
-{
+                                const vector<FeatureMatch> &matches) {
     int numMatches = (int) matches.size();
 
     // first, we will compute the A matrix in the homogeneous linear equations Ah = 0
@@ -38,7 +37,26 @@ CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
         // BEGIN TODO
         // fill in the matrix A in this loop.
         // To access an element of A, use parentheses, e.g. A(0,0)
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
+
+        A(2*i,0) = -(a.x);
+        A(2*i,1) = -(a.y);
+        A(2*i,2) = -1;
+        A(2*i,3) = 0;
+        A(2*i,4) = 0;
+        A(2*i,5) = 0;
+        A(2*i,6) = b.x * a.x;
+        A(2*i,7) = b.x * a.y;
+        A(2*i,8) = b.x;
+
+        A(2*i + 1,0) = 0;
+        A(2*i + 1,1) = 0;
+        A(2*i + 1,2) = 0;
+        A(2*i + 1,3) = -(a.x);
+        A(2*i + 1,4) = -(a.y);
+        A(2*i + 1,5) = -1;
+        A(2*i + 1,6) = b.y * a.x;
+        A(2*i + 1,7) = b.y * a.y;
+        A(2*i + 1,8) = b.y;
 
         // END TODO
     }
@@ -52,8 +70,22 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
     // BEGIN TODO
     // fill the homography H with the appropriate elements of the SVD
     // To extract, for instance, the V matrix, use svd.matrixV()
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
+    int min = sv[0];
+    int minIndex = -1;
+    for(int i = 1; i< sv.size(); i++) {
+        if (sv[i] < min) {
+            min = sv[i];
+            minIndex = i;
+        }
+    }
+    Vt = Vt.transpose();
+    VectorXd eigenVector = Vt.col(minIndex);
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        H[i][j] = eigenVector[i * 3 + j];
+      }
+    }
     // END TODO
 
     return H;
@@ -65,11 +97,8 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
-<<<<<<< HEAD
  *               Each match in 'matches' contains two feature ids of
-=======
  *               Each match in 'matches' contains two feature ids of
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *               matching features, id1 (in f1) and id2 (in f2).
  *		m: motion model
  *		nRANSAC: number of RANSAC iterations
@@ -86,7 +115,6 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *		and store it in M
  */
 int alignPair(const FeatureSet &f1, const FeatureSet &f2,
-<<<<<<< HEAD
           const vector<FeatureMatch> &matches, MotionModel m,
           int nRANSAC, double RANSACthresh, CTransform3x3& M)
 {
@@ -105,39 +133,59 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // Your homography handling code should call ComputeHomography.
     // This function should also call countInliers and, at the end,
     // leastSquaresFit.
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
     int maxInliers = -1;
-
+    int sz = matches.size();
     for (int i = 0; i < nRANSAC; i++) {
+        int n = rand() % sz;
+        FeatureMatch randomMatch = matches.at(n);
+        CTransform3x3 trans;
         switch (m) {
             case eTranslate: {
-                int n = rand() % matches.size();
-                FeatureMatch randomMatch = matches.at(n);
-                Feature first = f1[randomMatch.id1 - 1];
-                Feature second = f2[randomMatch.id2 - 1];
-
+                Feature first = f1[randomMatch.id1];
+                Feature second = f2[randomMatch.id2];
                 float xTranslation = (float)(second.x - first.x);
                 int yTranslation = (float)(second.y - first.y);
-                CTransform3x3 estimateTranslation = CTransform3x3::Translation(xTranslation, yTranslation);
-
-                vector<int> inliers;
-                countInliers(f1,f2,matches,m,estimateTranslation,RANSACthresh,inliers);
-
-                if (inliers.size() > maxInliers) {
-                    maxInliers = inliers.size();
-                    M = estimateTranslation;
-                }
+                trans = CTransform3x3::Translation(xTranslation, yTranslation);
                 break;
             }
-            case eHomography:
+            case eHomography: {
+                int indices[] = {0, 0, 0, 0};
+                for (int chooseRand = 0; chooseRand < 4; chooseRand++)
+                {
+                  indices[chooseRand] = rand() % sz;
+                  for (int p = 0; p < chooseRand; p++)
+                  {
+                    if (indices[p] = indices[chooseRand]);
+                    {
+                      indices[chooseRand] = rand() % sz;
+                      p--;
+                    }
+                  }
+                }
+                vector<FeatureMatch> selectedMatches;
+                selectedMatches.resize(4);
+                for (int c = 0; c < 4; c++)
+                {
+                  int idx = indices[c];
+                  FeatureMatch selectedMatches[c] = new FeatureMatch();
+                  selectedMatches[c].id1 = matches.at(idx).id1;
+                  selectedMatches[c].id2 = matches.at(idx).id2;
+                }
+                trans = ComputeHomography(f1, f2, selectedMatches);
                 break;
+            }
+            vector<int> inliers;
+            countInliers(f1,f2,matches,m,trans,RANSACthresh,inliers);
+
+            if (inliers.size() > maxInliers) {
+                maxInliers = inliers.size();
+                M = trans;
+            }
+
         }
 
     }
-=======
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
     // END TODO
 
@@ -149,15 +197,12 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
-<<<<<<< HEAD
  *		m: motion model
  *               Each match in 'matches' contains two feature ids of
  *               matching features, id1 (in f1) and id2 (in f2).
-=======
  *               Each match in 'matches' contains two feature ids of
  *               matching features, id1 (in f1) and id2 (in f2).
  *		m: motion model
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *		M: transformation matrix
  *		RANSACthresh: RANSAC distance threshold
  *		inliers: inlier feature IDs
@@ -179,7 +224,6 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
 
     for (unsigned int i = 0; i < matches.size(); i++) {
         // BEGIN TODO
-<<<<<<< HEAD
         // determine if the ith matched feature f1[id1-1], when transformed by M,
         // is within RANSACthresh of its match in f2
         //
@@ -187,8 +231,8 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
         FeatureMatch match = matches.at(i);
-        Feature first = f1[match.id1 - 1];
-        Feature second = f2[match.id2 - 1];
+        Feature first = f1[match.id1];
+        Feature second = f2[match.id2];
 
         CVector3 *firstVec = new CVector3(first.x, first.y, 1);
         CVector3 translatedVec = M * (*firstVec);
@@ -203,15 +247,12 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
         if (distance < RANSACthresh) {
             inliers.push_back(i);
         }
-=======
         // determine if the ith matched feature f1[id1], when transformed by M,
         // is within RANSACthresh of its match in f2
         //
         // if so, append i to inliers
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
-        // END TODO
     }
 
     return (int) inliers.size();
@@ -230,26 +271,17 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *		and return it in M
  */
 int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
-<<<<<<< HEAD
             const vector<FeatureMatch> &matches, MotionModel m,
             const vector<int> &inliers, CTransform3x3& M)
 {
     // This function needs to handle two possible motion models,
-=======
-            const vector<FeatureMatch> &matches, MotionModel m,
-            const vector<int> &inliers, CTransform3x3& M)
-{
     // This function needs to handle two possible motion models,
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
     // pure translations and full homographies.
 
     switch (m) {
         case eTranslate: {
-<<<<<<< HEAD
             // for spherically warped images, the transformation is a
-=======
             // for spherically warped images, the transformation is a
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
             // translation and only has two degrees of freedom
             //
             // therefore, we simply compute the average translation vector
@@ -261,15 +293,12 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
 			    // BEGIN TODO
 			    // use this loop to compute the average translation vector
 			    // over all inliers
-<<<<<<< HEAD
               int m1 = matches.at(inliers.at(i)).id1;
               int m2 = matches.at(inliers.at(i)).id2;
               u += f1[m1].x - f2[m2].x;
               v += f1[m1].y - f2[m2].y;
-=======
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
                 // END TODO
             }
 
@@ -279,11 +308,7 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
             M = CTransform3x3::Translation((float) u, (float) v);
 
             break;
-<<<<<<< HEAD
         }
-=======
-        }
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
         case eHomography: {
 			M = CTransform3x3();
@@ -291,7 +316,6 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
             // BEGIN TODO
 		    // Compute a homography M using all inliers.
 		    // This should call ComputeHomography.
-<<<<<<< HEAD
               M = ComputeHomography(f1, f2, matches);
 
             // END TODO
@@ -304,15 +328,9 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
             break;
         }
     }
-=======
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
             // END TODO
 
-            break;
-        }
-    }
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
     return 0;
 }
