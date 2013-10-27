@@ -104,8 +104,8 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
             case eTranslate: {
                 int n = rand() % matches.size();
                 FeatureMatch randomMatch = matches.at(n);
-                Feature first = f1[randomMatch.id1 - 1];
-                Feature second = f2[randomMatch.id2 - 1];
+                Feature first = f1[randomMatch.id1];
+                Feature second = f2[randomMatch.id2];
 
                 float xTranslation = (float)(second.x - first.x);
                 int yTranslation = (float)(second.y - first.y);
@@ -167,8 +167,8 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
         FeatureMatch match = matches.at(i);
-        Feature first = f1[match.id1 - 1];
-        Feature second = f2[match.id2 - 1];
+        Feature first = f1[match.id1];
+        Feature second = f2[match.id2];
 
         CVector3 *firstVec = new CVector3(first.x, first.y, 1);
         CVector3 translatedVec = M * (*firstVec);
