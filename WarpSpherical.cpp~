@@ -58,20 +58,16 @@ CFloatImage WarpSphericalField(CShape srcSh, CShape dstSh, float f,
 	for (int y = 0; y < dstSh.height; y++) {
 		float *uv = &uvImg.Pixel(0, y, 0);
 		for (int x = 0; x < dstSh.width; x++, uv += 2) {
-			// (x,y) is the spherical image coordinates. 
+			// (x,y) is the spherical image coordinates.
 			// (xf,yf) is the spherical coordinates, e.g., xf is the angle theta
 			// and yf is the angle phi
 
-			float xf = (float) ((x - 0.5f*dstSh.width ) / f);
+			float xf = (float) ((x + 0.5f*dstSh.width ) / f);
 			float yf = (float) ((y - 0.5f*dstSh.height) / f - min_y);
 
 			// (xt,yt,zt) are intermediate coordinates to which you can
 			// apply the spherical correction and radial distortion
-<<<<<<< HEAD
 			float xt, yt, zt;
-=======
-			float xt, yt;
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 			CVector3 p;
 
 			// BEGIN TODO
@@ -80,27 +76,24 @@ CFloatImage WarpSphericalField(CShape srcSh, CShape dstSh, float f,
 			// r, and project the point to the z=1 plane at
 			// (xt/zt,yt/zt,1), then distort with radial distortion
 			// coefficients k1 and k2
-<<<<<<< HEAD
             xt = sin(xf) * cos(yf);
             yt = sin(yf);
             zt = cos(xf) * cos(yf);
-            
+
             CVector3 euclidean;
             euclidean[0] = xt;
             euclidean[1] = yt;
             euclidean[2] = zt;
-            
+
             euclidean = r * euclidean;
-            
+
             xt = euclidean[0]/euclidean[2];
             yt = euclidean[1]/euclidean[2];
             zt = 1.0;
-            
+
             float rSquared = pow(xt, 2) + pow(yt, 2);
             xt = xt * (1 + k1 * rSquared + k2 * pow(rSquared, 2));
             yt = yt * (1 + k1 * rSquared + k2 * pow(rSquared, 2));
-=======
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 						// END TODO
 
 			// Convert back to regular pixel coordinates and store
