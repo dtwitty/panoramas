@@ -65,7 +65,11 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
+<<<<<<< HEAD
  *               Each match in 'matches' contains two feature ids of
+=======
+ *               Each match in 'matches' contains two feature ids of
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *               matching features, id1 (in f1) and id2 (in f2).
  *		m: motion model
  *		nRANSAC: number of RANSAC iterations
@@ -90,12 +94,17 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // motion models, pure translations (m == eTranslation) and
     // full homographies (m == eHomography).  However, you should
     // only have one outer loop to perform the RANSAC code, as
+    // BEGIN TODO
+    // Write this entire method.  You need to handle two types of
+    // motion models, pure translations (m == eTranslation) and
+    // full homographies (m == eHomography).  However, you should
+    // only have one outer loop to perform the RANSAC code, as
     // the use of RANSAC is almost identical for both cases.
     //
     // Your homography handling code should call ComputeHomography.
     // This function should also call countInliers and, at the end,
     // leastSquaresFit.
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
     int maxInliers = -1;
 
@@ -136,9 +145,15 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
+<<<<<<< HEAD
  *		m: motion model
  *               Each match in 'matches' contains two feature ids of
  *               matching features, id1 (in f1) and id2 (in f2).
+=======
+ *               Each match in 'matches' contains two feature ids of
+ *               matching features, id1 (in f1) and id2 (in f2).
+ *		m: motion model
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *		M: transformation matrix
  *		RANSACthresh: RANSAC distance threshold
  *		inliers: inlier feature IDs
@@ -183,8 +198,12 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
         if (distance < RANSACthresh) {
             inliers.push_back(i);
         }
+        // determine if the ith matched feature f1[id1], when transformed by M,
+        // is within RANSACthresh of its match in f2
+        //
+        // if so, append i to inliers
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
-        // END TODO
     }
 
     return (int) inliers.size();
@@ -207,10 +226,12 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
             const vector<int> &inliers, CTransform3x3& M)
 {
     // This function needs to handle two possible motion models,
+    // This function needs to handle two possible motion models,
     // pure translations and full homographies.
 
     switch (m) {
         case eTranslate: {
+            // for spherically warped images, the transformation is a
             // for spherically warped images, the transformation is a
             // translation and only has two degrees of freedom
             //
@@ -227,6 +248,8 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
               int m2 = matches.at(inliers.at(i)).id2;
               u += f1[m1].x - f2[m2].x;
               v += f1[m1].y - f2[m2].y;
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
+
                 // END TODO
             }
 
@@ -256,6 +279,9 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
             break;
         }
     }
+
+            // END TODO
+
 
     return 0;
 }
