@@ -23,8 +23,11 @@ CFLAGS = -g
 endif
 
 all: Panorama
+<<<<<<< HEAD
+=======
 %.o: %.cpp
 	g++ -c -o $@ $(CFLAGS) $<
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
 Panorama: $(OBJS) $(IMAGELIB)
 	g++ -o $@ $(CFLAGS) $(OBJS) $(IMAGELIB) $(LIBS)

@@ -65,7 +65,11 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
+<<<<<<< HEAD
  *               Each match in 'matches' contains two feature ids of
+=======
+ *               Each match in 'matches' contains two feature ids of
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *               matching features, id1 (in f1) and id2 (in f2).
  *		m: motion model
  *		nRANSAC: number of RANSAC iterations
@@ -82,9 +86,15 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *		and store it in M
  */
 int alignPair(const FeatureSet &f1, const FeatureSet &f2,
+<<<<<<< HEAD
           const vector<FeatureMatch> &matches, MotionModel m,
           int nRANSAC, double RANSACthresh, CTransform3x3& M)
 {
+    // BEGIN TODO
+    // Write this entire method.  You need to handle two types of
+    // motion models, pure translations (m == eTranslation) and
+    // full homographies (m == eHomography).  However, you should
+    // only have one outer loop to perform the RANSAC code, as
     // BEGIN TODO
     // Write this entire method.  You need to handle two types of
     // motion models, pure translations (m == eTranslation) and
@@ -95,10 +105,10 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // Your homography handling code should call ComputeHomography.
     // This function should also call countInliers and, at the end,
     // leastSquaresFit.
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
     int maxInliers = -1;
-    
+
     for (int i = 0; i < nRANSAC; i++) {
         switch (m) {
             case eTranslate: {
@@ -106,14 +116,14 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
                 FeatureMatch randomMatch = matches.at(n);
                 Feature first = f1[randomMatch.id1 - 1];
                 Feature second = f2[randomMatch.id2 - 1];
-                
+
                 float xTranslation = (float)(second.x - first.x);
                 int yTranslation = (float)(second.y - first.y);
                 CTransform3x3 estimateTranslation = CTransform3x3::Translation(xTranslation, yTranslation);
-                
+
                 vector<int> inliers;
                 countInliers(f1,f2,matches,m,estimateTranslation,RANSACthresh,inliers);
-                
+
                 if (inliers.size() > maxInliers) {
                     maxInliers = inliers.size();
                     M = estimateTranslation;
@@ -123,9 +133,12 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
             case eHomography:
                 break;
         }
-        
+
     }
-    
+=======
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
+
     // END TODO
 
     return 0;
@@ -136,9 +149,15 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
+<<<<<<< HEAD
  *		m: motion model
  *               Each match in 'matches' contains two feature ids of
  *               matching features, id1 (in f1) and id2 (in f2).
+=======
+ *               Each match in 'matches' contains two feature ids of
+ *               matching features, id1 (in f1) and id2 (in f2).
+ *		m: motion model
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *		M: transformation matrix
  *		RANSACthresh: RANSAC distance threshold
  *		inliers: inlier feature IDs
@@ -160,32 +179,37 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
 
     for (unsigned int i = 0; i < matches.size(); i++) {
         // BEGIN TODO
+<<<<<<< HEAD
         // determine if the ith matched feature f1[id1-1], when transformed by M,
         // is within RANSACthresh of its match in f2
         //
         // if so, append i to inliers
 printf("TODO: %s:%d\n", __FILE__, __LINE__);
-<<<<<<< HEAD
-=======
-        
+
         FeatureMatch match = matches.at(i);
         Feature first = f1[match.id1 - 1];
         Feature second = f2[match.id2 - 1];
-        
+
         CVector3 *firstVec = new CVector3(first.x, first.y, 1);
         CVector3 translatedVec = M * (*firstVec);
-        
+
         double translatedX = (*firstVec)[0];
         double translatedY = (*firstVec)[1];
-        
+
         double differenceX = second.x - translatedX;
         double differenceY = second.y - translatedY;
         double distance = sqrt(differenceX + differenceY);
-        
+
         if (distance < RANSACthresh) {
             inliers.push_back(i);
         }
->>>>>>> b1a391f28a027eef7019cf3f47d0b258c066603f
+=======
+        // determine if the ith matched feature f1[id1], when transformed by M,
+        // is within RANSACthresh of its match in f2
+        //
+        // if so, append i to inliers
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
         // END TODO
     }
@@ -206,15 +230,26 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *		and return it in M
  */
 int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
+<<<<<<< HEAD
             const vector<FeatureMatch> &matches, MotionModel m,
             const vector<int> &inliers, CTransform3x3& M)
 {
     // This function needs to handle two possible motion models,
+=======
+            const vector<FeatureMatch> &matches, MotionModel m,
+            const vector<int> &inliers, CTransform3x3& M)
+{
+    // This function needs to handle two possible motion models,
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
     // pure translations and full homographies.
 
     switch (m) {
         case eTranslate: {
+<<<<<<< HEAD
             // for spherically warped images, the transformation is a
+=======
+            // for spherically warped images, the transformation is a
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
             // translation and only has two degrees of freedom
             //
             // therefore, we simply compute the average translation vector
@@ -226,8 +261,15 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
 			    // BEGIN TODO
 			    // use this loop to compute the average translation vector
 			    // over all inliers
-              u += f1[matches.at(inliers.at(i)).id2 - 1] - f1[matches.at(inliers.at(i)).id1 - 1];
-              v += f2[matches.at(inliers.at(i)).id2 - 1] - f2[matches.at(inliers.at(i)).id1 - 1];
+<<<<<<< HEAD
+              int m1 = matches.at(inliers.at(i)).id1;
+              int m2 = matches.at(inliers.at(i)).id2;
+              u += f1[m1].x - f2[m2].x;
+              v += f1[m1].y - f2[m2].y;
+=======
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
+
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
                 // END TODO
             }
 
@@ -237,7 +279,11 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
             M = CTransform3x3::Translation((float) u, (float) v);
 
             break;
+<<<<<<< HEAD
         }
+=======
+        }
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
         case eHomography: {
 			M = CTransform3x3();
@@ -245,13 +291,28 @@ int leastSquaresFit(const FeatureSet &f1, const FeatureSet &f2,
             // BEGIN TODO
 		    // Compute a homography M using all inliers.
 		    // This should call ComputeHomography.
+<<<<<<< HEAD
               M = ComputeHomography(f1, f2, matches);
 
             // END TODO
 
             break;
         }
+
+        case eRotate3D: {
+            cout << "3D Rotation is not supported by this project";
+            break;
+        }
     }
+=======
+printf("TODO: %s:%d\n", __FILE__, __LINE__);
+
+            // END TODO
+
+            break;
+        }
+    }
+>>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
 
     return 0;
 }
