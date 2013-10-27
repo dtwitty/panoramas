@@ -19,8 +19,7 @@
 #include <iostream>
 
 CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
-                                const vector<FeatureMatch> &matches)
-{
+                                const vector<FeatureMatch> &matches) {
     int numMatches = (int) matches.size();
 
     // first, we will compute the A matrix in the homogeneous linear equations Ah = 0
@@ -38,7 +37,26 @@ CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
         // BEGIN TODO
         // fill in the matrix A in this loop.
         // To access an element of A, use parentheses, e.g. A(0,0)
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
+        
+        A(2*i,0) = -(a.x);
+        A(2*i,1) = -(a.y);
+        A(2*i,2) = -1;
+        A(2*i,3) = 0;
+        A(2*i,4) = 0;
+        A(2*i,5) = 0;
+        A(2*i,6) = b.x * a.x;
+        A(2*i,7) = b.x * a.y;
+        A(2*i,8) = b.x;
+        
+        A(2*i + 1,0) = 0;
+        A(2*i + 1,1) = 0;
+        A(2*i + 1,2) = 0;
+        A(2*i + 1,3) = -(a.x);
+        A(2*i + 1,4) = -(a.y);
+        A(2*i + 1,5) = -1;
+        A(2*i + 1,6) = b.y * a.x;
+        A(2*i + 1,7) = b.y * a.y;
+        A(2*i + 1,8) = b.y;
 
         // END TODO
     }
@@ -52,7 +70,14 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
     // BEGIN TODO
     // fill the homography H with the appropriate elements of the SVD
     // To extract, for instance, the V matrix, use svd.matrixV()
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    
+    int minIndex = sv[0];
+    for(int i = 1; i< sv.size(); i++) {
+        if (sv[i] < minIndex)
+            minIndex = sv[i];
+    }
+    Vt.transpose();
+    VectorXd eigenVector = Vt.col(minIndex);
 
     // END TODO
 
@@ -65,11 +90,8 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
-<<<<<<< HEAD
  *               Each match in 'matches' contains two feature ids of
-=======
  *               Each match in 'matches' contains two feature ids of
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *               matching features, id1 (in f1) and id2 (in f2).
  *		m: motion model
  *		nRANSAC: number of RANSAC iterations
@@ -145,15 +167,12 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
  *	INPUT:
  *		f1, f2: source feature sets
  *		matches: correspondences between f1 and f2
-<<<<<<< HEAD
  *		m: motion model
  *               Each match in 'matches' contains two feature ids of
  *               matching features, id1 (in f1) and id2 (in f2).
-=======
  *               Each match in 'matches' contains two feature ids of
  *               matching features, id1 (in f1) and id2 (in f2).
  *		m: motion model
->>>>>>> 7426292455c1a5b1103ad2ba18e163930a74f2a8
  *		M: transformation matrix
  *		RANSACthresh: RANSAC distance threshold
  *		inliers: inlier feature IDs
