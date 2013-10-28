@@ -133,8 +133,13 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // Your homography handling code should call ComputeHomography.
     // This function should also call countInliers and, at the end,
     // leastSquaresFit.
-    cout << "align";
-
+    cout << "alignalignalignalign";
+    cout << f1.size();
+    cout << '\n';
+    cout << f2.size();
+    cout << '\n';
+    cout << matches.size();
+    cout << '\n';
     int maxInliers = -1;
     int sz = matches.size();
     for (int i = 0; i < nRANSAC; i++) {
@@ -146,7 +151,10 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
                 Feature first = f1[randomMatch.id1];
                 Feature second = f2[randomMatch.id2];
                 float xTranslation = (float)(second.x - first.x);
-                int yTranslation = (float)(second.y - first.y);
+                float yTranslation = (float)(second.y - first.y);
+                cout << "Translation: X "; cout << xTranslation;
+                cout << ", Y ";
+                cout << yTranslation; cout << '\n';
                 trans = CTransform3x3::Translation(xTranslation, yTranslation);
                 break;
             }
@@ -177,18 +185,17 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
                 trans = ComputeHomography(f1, f2, selectedMatches);
                 break;
             }
+            }
+
             vector<int> inliers;
             countInliers(f1,f2,matches,m,trans,RANSACthresh,inliers);
-
+            cout << "Inliers: "; cout << inliers.size(); cout << '\n';
             if (inliers.size() > maxInliers) {
                 maxInliers = inliers.size();
                 M = trans;
             }
 
         }
-
-    }
-
     // END TODO
 
     return 0;
@@ -230,7 +237,6 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
         // is within RANSACthresh of its match in f2
         //
         // if so, append i to inliers
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
         FeatureMatch match = matches.at(i);
         Feature first = f1[match.id1];
@@ -244,6 +250,7 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
         double differenceX = second.x - translatedX;
         double differenceY = second.y - translatedY;
+        cout << "\nDifference X: " << differenceX << ", " << differenceY;
         double distance = sqrt(differenceX + differenceY);
 
         if (distance < RANSACthresh) {
@@ -253,7 +260,6 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
         // is within RANSACthresh of its match in f2
         //
         // if so, append i to inliers
-printf("TODO: %s:%d\n", __FILE__, __LINE__);
 
     }
 
