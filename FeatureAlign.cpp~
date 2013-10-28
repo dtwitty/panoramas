@@ -184,7 +184,7 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
                 }
                 trans = ComputeHomography(f1, f2, selectedMatches);
                 break;
-            }
+              }
             }
 
             vector<int> inliers;
@@ -245,11 +245,12 @@ int countInliers(const FeatureSet &f1, const FeatureSet &f2,
         CVector3 *firstVec = new CVector3(first.x, first.y, 1);
         CVector3 translatedVec = M * (*firstVec);
 
-        double translatedX = (*firstVec)[0];
-        double translatedY = (*firstVec)[1];
+        double translatedX = translatedVec[0];
+        double translatedY = translatedVec[1];
 
         double differenceX = second.x - translatedX;
         double differenceY = second.y - translatedY;
+        cout << "\nTranslation X: " << translatedX << ", Y: " << translatedY;
         double distance = sqrt(differenceX + differenceY);
 
         if (distance < RANSACthresh) {
