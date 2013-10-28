@@ -46,7 +46,30 @@ void ImageBoundingBox(CImage &image, CTransform3x3 &M,
     // This is a useful helper function that you might choose to implement
     // takes an image, and a transform, and computes the bounding box of the
     // transformed image.
-printf("TODO: %s:%d\n", __FILE__, __LINE__); 
+    
+    CVector3 topLeftPixel;
+    topLeftPixel[0] = 0.0;
+    topLeftPixel[1] = 0.0;
+    topLeftPixel[2] = 1.0;
+    
+    topLeftPixel = M * topLeftPixel;
+    
+    topLeftPixel[0] = iround(topLeftPixel[0]);
+    topLeftPixel[1] = iround(topLeftPixel[1]);
+    topLeftPixel[2] = iround(topLeftPixel[2]);
+    
+    if(topLeftPixel[0] + image.Shape().width > max_x) {
+        max_x = topLeftPixel[0] + image.Shape().width;
+    }
+    if(topLeftPixel[0] < min_x) {
+        min_x = topLeftPixel[0];
+    }
+    if(topLeftPixel[1] + image.Shape().height > max_y) {
+        max_y = topLeftPixel[1] + image.Shape().height;
+    }
+    if(topLeftPixel[1] < min_y) {
+        min_y = topLeftPixel[1];
+    }
 
 }
 
@@ -68,8 +91,38 @@ static void AccumulateBlend(CByteImage& img, CFloatImage& acc, CTransform3x3 M, 
 {
     // BEGIN TODO
     // Fill in this routine
-printf("TODO: %s:%d\n", __FILE__, __LINE__); 
-
+    
+    CVector3 transformedPoint;
+    float alpha;
+    for (int i = 0; i<img.Shape().width; i++) {
+        for (int j = 0; j<img.Shape().height; j++) {
+            transformedPoint[0] = i;
+            transformedPoint[1] = j;
+            transformedPoint[2] = 1;
+            transformedPoint = M * transformedPoint;
+            if (i < blendWidth) {
+                alpha = (i+1) / blendWidth;
+                for (int k = 0; k<3; k++) {
+                    acc.Pixel(transformedPoint[0], transformedPoint[1], k) += alpha * img.Pixel(i,j,k);
+                    acc.Pixel(transformedPoint[0], transformedPoint[1], 3) += alpha * img.Pixel(i,j,k);
+                }
+            }
+            else if(i > img.Shape().width - 1 - blendWidth) {
+                alpha = ((img.Shape().width - i) % ((int)blendWidth + 1)) / blendWidth;
+                for (int k = 0; k<3; k++) {
+                    acc.Pixel(transformedPoint[0], transformedPoint[1], k) += alpha * img.Pixel(i,j,k);
+                    acc.Pixel(transformedPoint[0], transformedPoint[1], 3) += alpha * img.Pixel(i,j,k);
+                }
+            }
+            else {
+                for (int k = 0; k<3; k++) {
+                    acc.Pixel(transformedPoint[0], transformedPoint[1], k) += img.Pixel(i,j,k);
+                    acc.Pixel(transformedPoint[0], transformedPoint[1], 3) += img.Pixel(i,j,k);
+                }
+            }
+            
+        }
+    }
     // END TODO
 }
 
@@ -88,7 +141,14 @@ static void NormalizeBlend(CFloatImage& acc, CByteImage& img)
 {
     // BEGIN TODO
     // fill in this routine..
-printf("TODO: %s:%d\n", __FILE__, __LINE__); 
+    
+    for (int i = 0; i<acc.Shape().width; i++) {
+        for (int j = 0; j<acc.Shape().height; j++) {
+            for (int k = 0; k<3; k++) {
+                img.Pixel(i,j,k) = acc.Pixel(i,j,k) / acc.Pixel(i,j,3);
+            }
+        }
+    }
 
     // END TODO
 }
@@ -133,8 +193,10 @@ CByteImage BlendImages(CImagePositionV& ipv, float blendWidth)
 
         // BEGIN TODO
         // add some code here to update min_x, ..., max_y
-printf("TODO: %s:%d\n", __FILE__, __LINE__); 
-
+        int& minX = (int&)min_x, minY = (int&)min_y, maxX = (int&)max_x, maxY = (int&)max_y;
+        CByteImage& img = ipv[i].img;
+        ImageBoundingBox(img, T, minX, minY, maxX, maxY);
+        min_x = minX, min_y = minY, max_x = maxX, max_y = maxY;
         // END TODO
     }
 
@@ -207,7 +269,20 @@ printf("TODO: %s:%d\n", __FILE__, __LINE__);
     // fill in appropriate entries in A to trim the left edge and
     // to take out the vertical drift if this is a 360 panorama
     // (i.e. is360 is true)
-printf("TODO: %s:%d\n", __FILE__, __LINE__); 
+
+    float driftWarp = (y_final - y_init) / (x_final - x_init);
+    A[0][0] = 1;
+    A[0][1] = 0;
+    A[0][2] = 0.5 * width;
+    if(is360)
+        A[1][0] = driftWarp;
+    else
+        A[1][0] = 0;
+    A[1][1] = 1;
+    A[1][2] = 0;
+    A[2][0] = 0;
+    A[2][1] = 0;
+    A[2][2] = 1;
 
     // END TODO
 
