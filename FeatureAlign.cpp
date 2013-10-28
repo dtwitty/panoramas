@@ -116,7 +116,7 @@ CTransform3x3 ComputeHomography(const FeatureSet &f1, const FeatureSet &f2,
  */
 int alignPair(const FeatureSet &f1, const FeatureSet &f2,
           const vector<FeatureMatch> &matches, MotionModel m,
-          int nRANSAC, double RANSACthresh, CTransform3x3& M)
+          int nRANSAC, double RANSACthresh, CTransform3x3 &M)
 {
     // BEGIN TODO
     // Write this entire method.  You need to handle two types of
@@ -133,6 +133,7 @@ int alignPair(const FeatureSet &f1, const FeatureSet &f2,
     // Your homography handling code should call ComputeHomography.
     // This function should also call countInliers and, at the end,
     // leastSquaresFit.
+    cout << "align";
 
     int maxInliers = -1;
     int sz = matches.size();
