@@ -27,9 +27,11 @@
 #include "BlendImages.h"
 #include <float.h>
 #include <math.h>
+#include <iostream>
 
 #define MAX(x,y) (((x) < (y)) ? (y) : (x))
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
+using namespace std;
 
 /* Return the closest integer to x, rounding up */
 static int iround(double x) {
@@ -41,7 +43,7 @@ static int iround(double x) {
 }
 
 void ImageBoundingBox(CImage &image, CTransform3x3 &M, 
-    int &min_x, int &min_y, int &max_x, int &max_y)
+    float &min_x, float &min_y, float &max_x, float &max_y)
 {
     // This is a useful helper function that you might choose to implement
     // takes an image, and a transform, and computes the bounding box of the
@@ -54,9 +56,13 @@ void ImageBoundingBox(CImage &image, CTransform3x3 &M,
     
     topLeftPixel = M * topLeftPixel;
     
-    topLeftPixel[0] = iround(topLeftPixel[0]);
-    topLeftPixel[1] = iround(topLeftPixel[1]);
-    topLeftPixel[2] = iround(topLeftPixel[2]);
+//    topLeftPixel[0] = iround(topLeftPixel[0]);
+//    topLeftPixel[1] = iround(topLeftPixel[1]);
+//    topLeftPixel[2] = iround(topLeftPixel[2]);
+//    cout << topLeftPixel[0] << endl;
+//    cout << topLeftPixel[1] << endl;
+//    cout << topLeftPixel[2] << endl;
+
     
     if(topLeftPixel[0] + image.Shape().width > max_x) {
         max_x = topLeftPixel[0] + image.Shape().width;
@@ -68,6 +74,8 @@ void ImageBoundingBox(CImage &image, CTransform3x3 &M,
         max_y = topLeftPixel[1] + image.Shape().height;
     }
     if(topLeftPixel[1] < min_y) {
+        cout << topLeftPixel[1] << endl;
+
         min_y = topLeftPixel[1];
     }
 
@@ -106,7 +114,9 @@ static void AccumulateBlend(CByteImage& img, CFloatImage& acc, CTransform3x3 M, 
                     acc.Pixel(transformedPoint[0], transformedPoint[1], k) += alpha * img.Pixel(i,j,k);
                     acc.Pixel(transformedPoint[0], transformedPoint[1], 3) += alpha * img.Pixel(i,j,k);
                 }
+                
             }
+            
             else if(i > img.Shape().width - 1 - blendWidth) {
                 alpha = ((img.Shape().width - i) % ((int)blendWidth + 1)) / blendWidth;
                 for (int k = 0; k<3; k++) {
@@ -182,24 +192,47 @@ CByteImage BlendImages(CImagePositionV& ipv, float blendWidth)
     // Hack to detect if this is a 360 panorama
     if (ipv[0].imgName == ipv[n-1].imgName)
         is360 = true;
+    
+//    cout << is360 << endl;
+
 
     // Compute the bounding box for the mosaic
     float min_x = FLT_MAX, min_y = FLT_MAX;
     float max_x = 0, max_y = 0;
     int i;
+    CVector3 topLeftPixel;
     for (i = 0; i < n; i++)
     {
         CTransform3x3 &T = ipv[i].position;
 
         // BEGIN TODO
         // add some code here to update min_x, ..., max_y
-        int& minX = (int&)min_x, minY = (int&)min_y, maxX = (int&)max_x, maxY = (int&)max_y;
-        CByteImage& img = ipv[i].img;
-        ImageBoundingBox(img, T, minX, minY, maxX, maxY);
-        min_x = minX, min_y = minY, max_x = maxX, max_y = maxY;
+        
+        topLeftPixel[0] = 0.0;
+        topLeftPixel[1] = 0.0;
+        topLeftPixel[2] = 1.0;
+        
+        topLeftPixel = T.Inverse() * topLeftPixel;
+        
+        CByteImage& image = ipv[i].img;
+        
+        if(topLeftPixel[0] + image.Shape().width > max_x) {
+            max_x = topLeftPixel[0] + image.Shape().width;
+        }
+        if(topLeftPixel[0] < min_x) {
+            min_x = topLeftPixel[0];
+        }
+        if(topLeftPixel[1] + image.Shape().height > max_y) {
+            max_y = topLeftPixel[1] + image.Shape().height;
+        }
+        if(topLeftPixel[1] < min_y) {
+            min_y = topLeftPixel[1];
+        }
         // END TODO
     }
+    cout << min_y << endl;
 
+    
     // Create a floating point accumulation image
     CShape mShape((int)(ceil(max_x) - floor(min_x)),
         (int)(ceil(max_y) - floor(min_y)), nBands + 1);
@@ -215,7 +248,7 @@ CByteImage BlendImages(CImagePositionV& ipv, float blendWidth)
         CTransform3x3 &M = ipv[i].position;
         CTransform3x3 M_t = CTransform3x3::Translation(-min_x, -min_y) * M;
         CByteImage& img = ipv[i].img;
-
+        
         // Perform the accumulation
         AccumulateBlend(img, accumulator, M_t, blendWidth);
 
